@@ -30,7 +30,7 @@ var createSongRow = function(songNumber, songName, songLength) {
     '<tr class="album-view-song-item">' +
     '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>' +
     '  <td class="song-item-title">' + songName + '</td>' +
-    '  <td class="song-item-duration">' + songLength + '</td>' +
+    '  <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>' +
     '</tr>';
 
   var $row = $(template);
@@ -103,6 +103,31 @@ var togglePlayFromPlayerBar = function() {
   }
 };
 
+var setCurrentTimeInPlayerBar = function(currentTime) {
+
+  currentTime = filterTimeCode(currentTime);
+
+    $('.current-time').text(currentTime);
+//  console.log($playBar.currentTime);
+}
+
+var setTotalTimeInPlayerBar = function(totalTime) {
+  totalTime = filterTimeCode(totalTime);
+    $('.total-time').text(totalTime);
+}
+
+var filterTimeCode = function(timeInSeconds) {
+    var $seconds = parseFloat(timeInSeconds);
+    var $playbackTime;
+
+    if(Math.floor($seconds%60) >= 10)
+      $playbackTime = ""+Math.floor($seconds/60)+":"+ Math.floor($seconds%60);
+    else
+      $playbackTime = ""+Math.floor($seconds/60)+":"+ "0"+Math.floor($seconds%60);
+
+    return $playbackTime;
+}
+
 var setCurrentAlbum = function(album) {
   currentAlbum = album;
   var $albumTitle = $('.album-view-title');
@@ -130,7 +155,9 @@ var updateSeekBarWhileSongPlays = function() {
             var $seekBar = $('.seek-control .seek-bar');
 
             updateSeekPercentage($seekBar, seekBarFillRatio);
+            setCurrentTimeInPlayerBar(this.getTime());
         });
+
     }
 };
 var updateSeekPercentage = function($seekBar, seekBarFillRatio) {
@@ -230,6 +257,7 @@ var updatePlayerBarSong = function() {
   $('.currently-playing .artist-name').text(currentAlbum.artist);
   $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
   $('.main-controls .play-pause').html(playerBarPauseButton);
+  setTotalTimeInPlayerBar(currentSongFromAlbum.duration);
 };
 
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
@@ -253,4 +281,5 @@ $(document).ready(function() {
   $previousButton.click(previousSong);
   $nextButton.click(nextSong);
   $playPauseButton.click(togglePlayFromPlayerBar);
+
 });
